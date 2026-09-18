@@ -239,6 +239,23 @@
   .radio-group label { display:flex; align-items:center; gap:6px; cursor:pointer; font-size:.9rem; color: var(--text-main); }
   .radio-group input[type=radio] { accent-color: var(--accent-hover); width:16px; height:16px; }
 
+/* Вертикальная раскладка кнопок в модалке: верхняя на всю ширину, нижние в ряд */
+.modal-actions-stack {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal-actions-stack .modal-actions {
+  margin-top: 0;
+  flex-wrap: nowrap;
+}
+.modal-btn.full-width {
+  width: 100%;
+  flex: none;
+}
+
+
   .modal-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
   .modal-btn {
     padding:12px 20px; border-radius:40px; font-weight:700; font-size:.9rem;
@@ -1010,11 +1027,13 @@
         <label>Добавить игрока</label>
         <input type="text" id="newPlayerNick" placeholder="Ник">
       </div>
-      <div class="modal-actions">
-        <button class="modal-btn danger" id="playersClear"><i class="fa-solid fa-trash-can"></i> Очистить всё</button>
-        <button class="modal-btn secondary" id="playersCancel"><i class="fa-solid fa-xmark"></i> Отмена</button>
-        <button class="modal-btn primary" id="playersSave"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>
-      </div>
+      <div class="modal-actions-stack">
+        <button class="modal-btn danger full-width" id="playersClear"><i class="fa-solid fa-trash-can"></i> Очистить всё</button>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" id="playersCancel"><i class="fa-solid fa-xmark"></i> Отмена</button>
+            <button class="modal-btn primary" id="playersSave"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>
+        </div>
+        </div>
     `, (win, close) => {
       function attachRemoveHandlers() {
         win.querySelectorAll('.remove-player').forEach(btn => {
