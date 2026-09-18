@@ -214,67 +214,103 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
   }
-  .boosters-col {
-    background: var(--row-hover);
-    border-radius: 16px;
-    padding: 10px;
-    border: 1px solid var(--app-border);
-  }
-  .boosters-col-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--app-border);
-  }
-  .boosters-col-header h4 {
-    color: var(--accent-1);
-    font-size: 1rem;
-    font-weight: 700;
-    flex: 1;
-    text-align: center;
-  }
-  .copy-col-btn {
-    background: var(--btn-bg);
-    border: 1px solid var(--btn-border);
-    color: var(--text-main);
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all .2s;
-    flex-shrink: 0;
-  }
-  .copy-col-btn:hover {
-    background: var(--accent-hover);
-    color: #fff;
-    box-shadow: 0 0 10px var(--accent-glow);
-  }
-  .copy-col-btn i { font-size: .8rem; }
+ .boosters-col {
+  background: var(--row-hover);
+  border-radius: 16px;
+  border: 1px solid var(--app-border);
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.boosters-col.expanded {
+  border-color: var(--accent-2);
+}
 
-  .boosters-col ul {
-    list-style: none;
-    max-height: 48vh;
-    overflow-y: auto;
-    padding-right: 4px;
-  }
-  .boosters-col li {
-    padding: 5px 6px;
-    font-size: .8rem;
-    border-bottom: 1px solid var(--row-border);
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    white-space: nowrap;
-  }
-  .boosters-col li:last-child { border-bottom: none; }
-  .boosters-col li .days { color: var(--text-sub); }
-  .boosters-col li .count { color: var(--accent-1); font-weight: 700; }
+.boosters-col-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 14px;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  user-select: none;
+}
+.boosters-col-header:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+.boosters-col-header:hover h4,
+.boosters-col-header:hover .arrow-icon {
+  color: #fff;
+}
+
+.boosters-col-header h4 {
+  color: var(--accent-1);
+  font-size: 1.05rem;
+  font-weight: 700;
+  flex: 1;
+  margin: 0;
+  transition: color .2s;
+  text-align: center;
+}
+
+.arrow-icon {
+  color: var(--text-sub);
+  font-size: .85rem;
+  width: 14px;
+  text-align: center;
+  transition: transform .25s, color .2s;
+}
+.boosters-col.expanded .arrow-icon {
+  transform: rotate(90deg);
+}
+
+.copy-col-btn {
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  color: var(--text-main);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.copy-col-btn:hover {
+  background: var(--accent-hover);
+  color: #fff;
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+.copy-col-btn i { font-size: .8rem; }
+
+.boosters-col-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .3s ease;
+}
+.boosters-col.expanded .boosters-col-body {
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.boosters-col-body ul {
+  list-style: none;
+  padding: 6px 10px 10px;
+}
+.boosters-col-body li {
+  padding: 5px 6px;
+  font-size: .8rem;
+  border-bottom: 1px solid var(--row-border);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  white-space: nowrap;
+}
+.boosters-col-body li:last-child { border-bottom: none; }
+.boosters-col-body li .days { color: var(--text-sub); }
+.boosters-col-body li .count { color: var(--accent-1); font-weight: 700; }
 
   @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
   @keyframes slideUp { from{opacity:0; transform:translateY(30px) scale(.96);} to{opacity:1; transform:translateY(0) scale(1);} }
@@ -589,23 +625,26 @@
     let currentTarget = settings[currentTab].targetDays;
 
     function buildColumns(target) {
-      const cols = [5, 10, 15];
-      return `<div class="boosters-grid">` + cols.map(pct => {
-        const groups = groupBoosters(10, 150, pct / 100, target);
-        const rows = groups.map(g =>
-          `<li><span class="days">${groupLabel(g)}</span><span class="count">${g.n} шт.</span></li>`
-        ).join('');
-        return `
-          <div class="boosters-col">
-            <div class="boosters-col-header">
-              <h4>${pct}%</h4>
-              <button class="copy-col-btn" data-pct="${pct}" title="Скопировать"><i class="fa-solid fa-copy"></i></button>
-            </div>
-            <ul>${rows}</ul>
-          </div>
-        `;
-      }).join('') + `</div>`;
-    }
+  const cols = [5, 10, 15];
+  return `<div class="boosters-grid">` + cols.map(pct => {
+    const groups = groupBoosters(10, 150, pct / 100, target);
+    const rows = groups.map(g =>
+      `<li><span class="days">${groupLabel(g)}</span><span class="count">${g.n} шт.</span></li>`
+    ).join('');
+    return `
+      <div class="boosters-col" data-pct="${pct}">
+        <div class="boosters-col-header">
+          <i class="fa-solid fa-chevron-right arrow-icon"></i>
+          <h4>${pct}%</h4>
+          <button class="copy-col-btn" data-pct="${pct}" title="Скопировать"><i class="fa-solid fa-copy"></i></button>
+        </div>
+        <div class="boosters-col-body">
+          <ul>${rows}</ul>
+        </div>
+      </div>
+    `;
+  }).join('') + `</div>`;
+}
 
     openModal(`
       <h3>Таблица баффов</h3>
@@ -619,10 +658,41 @@
       </div>
     `, (win, close) => {
       function render() {
-        win.querySelector('#boostersContent').innerHTML = buildColumns(currentTarget);
-        win.querySelectorAll('.target-btn').forEach(b => {
-          b.classList.toggle('active', parseInt(b.dataset.target, 10) === currentTarget);
-        });
+  win.querySelector('#boostersContent').innerHTML = buildColumns(currentTarget);
+
+  win.querySelectorAll('.target-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.target, 10) === currentTarget);
+  });
+
+  win.querySelectorAll('.boosters-col').forEach(col => {
+    const header  = col.querySelector('.boosters-col-header');
+    const copyBtn = col.querySelector('.copy-col-btn');
+
+    // Клик по шапке — раскрыть/свернуть
+    header.onclick = (e) => {
+      if (e.target.closest('.copy-col-btn')) return;
+      col.classList.toggle('expanded');
+    };
+
+    // Клик по кнопке копирования — копируем и не сворачиваем
+    copyBtn.onclick = (e) => {
+      e.stopPropagation();
+      const pct = parseInt(copyBtn.dataset.pct, 10);
+      const groups = groupBoosters(10, 150, pct / 100, currentTarget);
+      const lines = groups.map(g => `${groupLabel(g)}: ${g.n} шт.`);
+      const text = `Количество баффов на количество дней:\n` + lines.join('\n');
+      navigator.clipboard.writeText(text).then(
+        () => alert(`Скопировано (${pct}%):\n\n` + text),
+        () => {
+          const ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta);
+          ta.select(); document.execCommand('copy'); ta.remove();
+          alert(`Скопировано (${pct}%):\n\n` + text);
+        }
+      );
+    };
+  });
+}
         win.querySelectorAll('.copy-col-btn').forEach(btn => {
           btn.onclick = () => {
             const pct = parseInt(btn.dataset.pct, 10);
