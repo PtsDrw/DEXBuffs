@@ -82,6 +82,18 @@
     --sticky-bg: #082a40; --sticky-head-bg: #194b73;
   }
 
+ .theme-option {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   padding: 12px;
+   border-radius: 14px;
+   cursor: pointer;
+   border: 1px solid var(--app-border);
+   margin-bottom: 8px;
+   background: var(--row-hover);
+ }
+
   body {
     background: linear-gradient(145deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
     min-height:100vh; display:flex; justify-content:center; align-items:flex-start;
