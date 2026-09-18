@@ -800,7 +800,7 @@
             const slice = list.slice(from - 1, to);
             if (!slice.length) return alert(`В диапазоне ${from}-${to} нет игроков`);
             const lines = slice.map((it, i) => `${from + i}. ${it.nick}: ${it.boosters ?? '—'}`);
-            const text = `[Очередь ${label}]:\n` + lines.join('\n');
+            const text = `Очередь ${label}:\n` + lines.join('\n');
 
             navigator.clipboard.writeText(text).then(
                 () => alert('Скопировано:\n\n' + text),
