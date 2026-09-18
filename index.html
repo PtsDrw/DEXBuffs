@@ -182,11 +182,24 @@
   .action-btn:hover:not(:disabled) { background: var(--accent-hover); color:#fff; box-shadow:0 0 12px var(--accent-glow); }
   .action-btn:disabled { opacity:.35; cursor:not-allowed; }
 
-  .table-wrapper {
-    border-radius:20px; overflow:auto;
-    background: var(--table-bg);
-    border:1px solid var(--app-border); max-height:60vh;
-  }
+  /* Внешний контейнер: скругление + обрезка */
+.table-outer {
+  border-radius: 20px;
+  overflow: hidden;               /* ← ключевое: обрезает всё, включая скроллбар */
+  border: 1px solid var(--app-border);
+  background: var(--table-bg);
+  box-shadow: inset 0 0 0 1px var(--app-shadow);
+}
+
+/* Внутренний контейнер: прокрутка */
+.table-wrapper {
+  overflow: auto;
+  max-height: 60vh;
+  border-radius: 20px;            /* на случай, если браузер не обрежет */
+  background: transparent;
+  /* убираем старую рамку и фон — они теперь на .table-outer */
+  border: none;
+}
   table { width:100%; border-collapse:collapse; min-width:600px; font-size:.9rem; }
   th {
     background: var(--thead-bg); color: var(--text-main); font-weight:600;
@@ -322,6 +335,47 @@
     .modal-window { padding:18px 14px; border-radius:24px; }
     .modal-btn { padding:10px 14px; font-size:.85rem; min-width:80px; }
   }
+
+/* ---------- ПОЛОСЫ ПРОКРУТКИ ---------- */
+
+/* Для WebKit (Chrome, Edge, Safari) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(145deg, var(--accent-2), var(--accent-1));
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background .2s;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Для Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-2) transparent;
+}
+
+/* На мобильных — тоньше */
+@media (max-width: 600px) {
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-thumb { border-width: 1px; }
+}
+
+
 </style>
 </head>
 <body>
@@ -352,7 +406,8 @@
     <button class="action-btn" id="copy21_30"><i class="fa-solid fa-copy"></i> 21-30</button>
   </div>
 
-  <div class="table-wrapper">
+  <div class="table-outer">
+    <div class="table-wrapper">
     <table>
       <thead>
         <tr>
@@ -364,6 +419,8 @@
     </table>
   </div>
 </div>
+  </div>
+
 
 <!-- Firebase SDK + анонимная аутентификация -->
 <script type="module">
@@ -1164,21 +1221,6 @@
 
 })();
 
-/*
-  ---------- ПРАВИЛА FIRESTORE (Firebase Console → Firestore → Rules) ----------
-
-  rules_version = '2';
-  service cloud.firestore {
-    match /databases/{database}/documents {
-      match /queues/{tab}     { allow read, write: if request.auth != null; }
-      match /settings/{tab}   { allow read, write: if request.auth != null; }
-      match /players/list     { allow read, write: if request.auth != null; }
-      match /userPrefs/{uid}  {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
-      }
-    }
-  }
-*/
 </script>
 </body>
 </html>
