@@ -505,20 +505,25 @@
 
         // ---------- РАСЧЁТ УСКОРИТЕЛЕЙ ----------
         function calculateBoosters(days, s) {
-            const toReduce = days - s.targetDays;
-            if (toReduce <= 0) return 0;
-            if (s.calcType === 'fixed') {
-                const perBooster = days * (s.fixedPercent / 100);
-                if (perBooster <= 0) return '—';
-                return Math.ceil(toReduce / perBooster);
-            } else {
-                const total = (s.avg5||0) + (s.avg10||0) + (s.avg15||0);
-                if (total <= 0) return '—';
-                const avgPct = (5*(s.avg5||0) + 10*(s.avg10||0) + 15*(s.avg15||0)) / total / 100;
-                const perBooster = days * avgPct;
-                if (perBooster <= 0) return '—';
-                return Math.ceil(toReduce / perBooster);
-            }
+          const target = s.targetDays;
+          if (days <= target) return 0;
+        
+          // Определяем процент ускорения
+          let pct; // доля (0.05, 0.10, 0.15, ...)
+          if (s.calcType === 'fixed') {
+            pct = s.fixedPercent / 100;
+          } else {
+            const total = (s.avg5||0) + (s.avg10||0) + (s.avg15||0);
+            if (total <= 0) return '—';
+            // Взвешенное среднее: 5*a5 + 10*a10 + 15*a15, делённое на сумму, потом на 100
+            pct = (5*(s.avg5||0) + 10*(s.avg10||0) + 15*(s.avg15||0)) / total / 100;
+          }
+        
+          if (pct <= 0 || pct >= 1) return '—';
+        
+          // n = ceil( log(target / days) / log(1 - pct) )
+          const n = Math.ceil( Math.log(target / days) / Math.log(1 - pct) );
+          return n;
         }
 
         function recalcAll() {
